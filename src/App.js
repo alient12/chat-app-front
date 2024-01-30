@@ -31,7 +31,7 @@ function App() {
           <Route path="/" element={<Home username={username} loggedIn={loggedIn} setLoggedIn={setLoggedIn}/>} />
           <Route path="/login" element={<Login setLoggedIn={setLoggedIn} setUsername={setUsername} setID={setID} />} />
           <Route path="/register" element={<Register setLoggedIn={setLoggedIn} setUsername={setUsername} setID={setID} />} />
-          <Route path="/chat" element={<Chat setLoggedIn={setLoggedIn} setUsername={setUsername} setID={setID} />} />
+          <Route path="/chat" element={<Chat loggedIn={loggedIn} />} />
         </Routes>
       </BrowserRouter>
     </div>

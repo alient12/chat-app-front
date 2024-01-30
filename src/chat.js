@@ -1,11 +1,18 @@
 import React from "react";
 // import {useNavigate} from "react-router-dom";
 // import axios from 'axios';
+import Modal from 'react-modal';
 import "./chat.css"
 import "bootstrap/dist/css/bootstrap.css"
 import "bootstrap/dist/js/bootstrap.js"
 import Typekit from 'react-typekit';
+import axios from "axios";
+import {useNavigate} from "react-router-dom";
 try{Typekit.load({async: true});}catch(e){}
+Modal.setAppElement('#root')
+
+
+const base_url = "http://localhost:8000/api";
 
 class Contact extends React.Component{
     constructor(props) {
@@ -47,8 +54,15 @@ class Contacts extends React.Component{
         this.activeContactHandler = this.activeContactHandler.bind(this)
         this.contacts = this.props.contacts.map((_,__)=>{return React.createRef();})
         this.state = {contacts:this.props.contacts.map((contact, i)=>{
-            return <Contact ref={this.contacts[i]} index={i} name={contact.name} lastMessage={contact.lastMessage} status={contact.status} profileImage={contact.profileImage} activeContactHandler={this.activeContactHandler}/>
+            return <Contact key={this.state.contacts[i]} ref={this.contacts[i]} index={i} name={contact.name} lastMessage={contact.lastMessage} status={contact.status} profileImage={contact.profileImage} activeContactHandler={this.activeContactHandler}/>
         })}
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.value !== this.props.value) {
+            this.setState({contacts: this.props.contacts});
+            console.log(this.state.contacts)
+        }
     }
 
 
@@ -64,7 +78,7 @@ class Contacts extends React.Component{
             element = this.state.contacts
         }
         return (
-            <div id="contacts">
+            <div key={this.props.contacts} id="contacts">
                 <ul>
                     {element}
                 </ul>
@@ -125,41 +139,158 @@ class Search extends React.Component{
 }
 
 class BottomBar extends React.Component{
+    constructor(props) {
+        super(props);
+        this.state = { isModalOpen: false };
+        this.onAddContactButton = this.onAddContactButton.bind(this);
+        this.closeModal = this.closeModal.bind(this);
+
+    }
+    onAddContactButton(){
+        this.setState({ isModalOpen: true });
+    }
+
+    closeModal(){
+        this.setState({ isModalOpen: false });
+    }
 
     render(){
         return (
             <div id="bottom-bar">
-                <button id="addcontact"><i className="fa fa-user-plus fa-fw" aria-hidden="true"></i>
+                <button id="addcontact" onClick={this.onAddContactButton}><i className="fa fa-user-plus fa-fw" aria-hidden="true"></i>
                     <span>Add contact</span></button>
                 <button id="settings"><i className="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span>
                 </button>
+                <CreateContact isOpen={this.state.isModalOpen} closeModal={this.closeModal}/>
             </div>
         )
     }
 }
 
-class SidePanel extends React.Component{
+class CreateContact extends React.Component{
     constructor(props) {
         super(props);
-        this.state = {contacts:this.props.contacts, profile:this.props.profile}
+        this.state = { contacts: [], keyword:"" };
+        this.searchUser = this.searchUser.bind(this)
+        this.addChat = this.addChat.bind(this)
     }
 
-    render(){
+    searchUser(){
+        if (this.state.keyword !== ""){
+            const url = base_url + "/users";
+            axios.get(url, { params: { keyword: this.state.keyword } })
+                .then(r=> {
+                    if (r.status === 200) {
+                        let contacts = r.data.map((data,_)=>{return {id:data.id, username:data.username, firstName:data.firstname, lastName:data.lastname}})
+                        console.log(contacts)
+                        this.setState({contacts:contacts})
+                    } else {
+                        window.alert("cannot connect to server")
+                        this.setState({connected: false})
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    this.setState({connected: false})
+                })
+            }
+    }
+
+    addChat(index){
+        const url = base_url + "/chats";
+        const headers = {'Content-Type': 'application/json'};
+        const data = {
+            token: localStorage.getItem("token"),
+            people:[this.state.contacts[index].id, Number(localStorage.getItem("id"))]
+        };
+        axios.post(url, data, {headers: headers})
+            .then(r=> {
+                if (r.status === 200) {
+                    this.props.closeModal()
+                } else {
+                    window.alert("cannot connect to server")
+                    this.setState({connected: false})
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                this.props.closeModal()
+            })
+
+    }
+
+    render() {
         return (
-            <div id="sidepanel">
+            <Modal id="add-contact" className="sidepanel-style" isOpen={this.props.isOpen}>
+                <h2>Add New Contact</h2>
+                <div className="modal-dialog" role="document">
+                    <div className="modal-content">
+                        <div className="modal-header">
+                            <button type="button" className="close" data-dismiss="modal" aria-label="Close"
+                                    onClick={() => {
+                                        this.props.closeModal()
+                                    }}>
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                        <div id="search">
+                            <label htmlFor=""><i className="fa fa-search" aria-hidden="true"></i></label>
+                            <input type="text" placeholder="Search contacts..." onChange={ev => {
+                                this.setState({keyword: ev.target.value})
+                                this.searchUser()
+                            }}/>
+                        </div>
+                        <div id="contacts">
+                            <ul>
+                                {this.state.contacts.map((contact, index) => (
+                                    <li key={index} className='contact' onClick={() => this.addChat(index)}>
+                                        <div className="wrap">
+                                            {/*<span className={"contact-status " + contact.status}></span>*/}
+                                            {/*<img src={contact.profileImage} alt=""/>*/}
+                                            <div className="meta">
+                                                <p className="name">{contact.firstName + " " + contact.lastName}</p>
+                                                <p className="preview">{contact.username}</p>
+                                            </div>
+                                        </div>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </Modal>
+        )
+    }
+}
+
+class SidePanel extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {contacts: this.props.contacts, profile: this.props.profile}
+    }
+
+    componentDidUpdate(prevProps, prevState, snapshot) {
+        if(prevProps.value !== this.props.value) {
+            this.setState({contacts: this.props.contacts});
+        }
+    }
+
+    render() {
+        return (
+            <div key={this.props.key} id="sidepanel" className="sidepanel-style">
                 <Profile name={this.state.profile.name} profileImage={this.state.profile.profileImage}/>
                 <Search/>
-                <Contacts contacts={this.state.contacts}/>
+                <Contacts key={this.props.key} contacts={this.state.contacts}/>
                 <BottomBar/>
             </div>
         )
     }
 }
 
-class ContactProfile extends React.Component{
+class ContactProfile extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {name:this.props.name, profileImage:this.props.profileImage}
+        this.state = {name: this.props.name, profileImage: this.props.profileImage}
     }
 
 
@@ -262,6 +393,124 @@ class Content extends React.Component{
 
 class Chat extends React.Component{
 
+    constructor(props) {
+        super(props);
+        this.state = {loggedIn:this.props.loggedIn, username:localStorage.getItem('user'), ID:localStorage.getItem('id'), profile:null, connected:false, contacts:[]}
+        this.getUserInfo = this.getUserInfo.bind(this)
+        this.getUserChats = this.getUserChats.bind(this)
+        this.getOtherUserInfo = this.getOtherUserInfo.bind(this)
+        this.getLastMessage = this.getLastMessage.bind(this)
+        this.updateContacts = this.updateContacts.bind(this)
+    }
+
+    componentDidMount() {
+        this.getUserInfo()
+        setInterval(this.updateContacts, 1000)
+    }
+
+    getUserInfo(){
+        const url = base_url + "/users/"+this.state.ID;
+        axios.get(url)
+            .then(r=> {
+                if (r.status === 200) {
+                    this.setState({
+                        profile: {
+                            name: r.data.firstname + " " + r.data.lastname,
+                            profileImage: r.data.image
+                        },
+                        connected:true
+                    })
+            } else {
+                window.alert("cannot connect to server")
+                this.setState({connected: false})
+            }
+        })
+        .catch((error) => {
+                console.error(error);
+            this.setState({connected: false})
+            })
+        }
+
+    getUserChats(){
+        const url = base_url + "/chats";
+        return axios.get(url, { params: { token: localStorage.getItem("token") } })
+            .then(r => {
+                if (r.status === 200){
+                    let contacts = []
+                    r.data.forEach((chat, _)=>{
+                        let id = chat.people[0]
+                        if (chat.people[0] == localStorage.getItem("id")){
+                            id = chat.people[1]
+                        }
+                        this.getOtherUserInfo(id).then(contact => {
+                            if (contact == null){
+                                return
+                            }
+                            this.getLastMessage(chat.id).then(lastMessage=>{
+                                contact.lastMessage = lastMessage
+                                contacts.push(contact)
+                            })
+                        })
+
+                    })
+                    return contacts
+                }
+                else{
+                    window.alert("cannot connect to server")
+                }
+        })
+            .catch((error) => {
+            })
+    }
+
+    getOtherUserInfo(id){
+        const url = base_url + "/users/"+id;
+        return axios.get(url)
+            .then(r=> {
+                if (r.status === 200) {
+                    return {
+                        name: r.data.firstname + r.data.lastname,
+                        status:"offline",
+                        lastMessage:"",
+                        profileImage: r.data.image
+                    }
+
+                } else {
+                    window.alert("cannot connect to server")
+                    this.setState({connected: false})
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    }
+
+    getLastMessage(chatID){
+        const url = base_url + "/chats/"+chatID;
+        return axios.get(url, { params: { token: localStorage.getItem("token") } })
+            .then(r=> {
+                if (r.status === 200) {
+                    if (r.data.messages == null){
+                        return ""
+                    } else{
+                        return r.data.messages[0].content
+                    }
+                } else {
+                    window.alert("cannot connect to server")
+                    this.setState({connected: false})
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+            })
+    }
+
+    updateContacts(){
+        this.getUserChats().then(x => {
+            this.setState({contacts:x})
+        })
+    }
+
     render(){
         let contact3 = {
             name: "gholi",
@@ -289,7 +538,6 @@ class Chat extends React.Component{
         }
         let contacts = [contact1, contact2, contact3, contact4]
 
-        let profile ={name:"Javad", profileImage: "https://images-wixmp-ed30a86b8c4ca887773594c2.wixmp.com/f/c10a26e2-8af9-43b4-b871-1c7dbe15b650/dg6mv1w-afa02c47-38c3-4f35-8068-ff91d27b5d84.png/v1/fit/w_828,h_828/el_macho__despicable_me_2__by_totallynotincina_dg6mv1w-414w-2x.png?token=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ1cm46YXBwOjdlMGQxODg5ODIyNjQzNzNhNWYwZDQxNWVhMGQyNmUwIiwiaXNzIjoidXJuOmFwcDo3ZTBkMTg4OTgyMjY0MzczYTVmMGQ0MTVlYTBkMjZlMCIsIm9iaiI6W1t7ImhlaWdodCI6Ijw9MTI4MCIsInBhdGgiOiJcL2ZcL2MxMGEyNmUyLThhZjktNDNiNC1iODcxLTFjN2RiZTE1YjY1MFwvZGc2bXYxdy1hZmEwMmM0Ny0zOGMzLTRmMzUtODA2OC1mZjkxZDI3YjVkODQucG5nIiwid2lkdGgiOiI8PTEyODAifV1dLCJhdWQiOlsidXJuOnNlcnZpY2U6aW1hZ2Uub3BlcmF0aW9ucyJdfQ.b8XlS0Y3tzQIXLevbosNFX4TBwqiT6-ySF9o9FvB3sY"}
 
         let message1 = {
             message: "Fuck You Javad!",
@@ -313,19 +561,25 @@ class Chat extends React.Component{
         }
         let messages = [message1, message2, message3, message4]
 
-        return (
-            <div id="frame">
-                <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet'
-                      type='text/css'/>
+        if (this.state.connected && this.state.contacts !== []){
+            return (
+                <div id="frame">
+                    <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet'
+                          type='text/css'/>
 
-                <link rel='stylesheet prefetch'
-                      href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'/>
-                <link rel='stylesheet prefetch'
-                      href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'/>
-                <SidePanel contacts={contacts} profile={profile}/>
-                <Content messages={messages}/>
+                    <link rel='stylesheet prefetch'
+                          href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'/>
+                    <link rel='stylesheet prefetch'
+                          href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'/>
+                    <SidePanel key={this.state.contacts} contacts={this.state.contacts} profile={this.state.profile}/>
+                    <Content messages={messages}/>
+                </div>
+            )
+        }else{
+            return <div>
+                <h1>Connecting to server ...</h1>
             </div>
-        )
+        }
     }
 }
 
