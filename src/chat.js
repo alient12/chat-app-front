@@ -40,6 +40,8 @@ const Chat = (props) => {
         },
     )
 
+    const [isModalOpen, setIsModalOpen] = useState(false)
+    const [searchedUsers, setSearchedUsers] = useState([])
     const lastMessageRef = useRef(null);
 
     const scrollToBottom = () => {
@@ -270,6 +272,30 @@ const Chat = (props) => {
         setContacts(newContacts)
     }
 
+    const searchUser = () => {
+        let text = document.getElementById('search-user-input').value
+        console.log(text)
+        if (text !== ""){
+            const url = base_url + "/users";
+            axios.get(url, { params: { keyword: text } })
+                .then(r=> {
+                    if (r.status === 200) {
+                        let users = r.data.map((data,_)=>{return {
+                            id:data.id, username:data.username, firstName:data.firstname, lastName:data.lastname,
+                            profileImage: data.image,
+                        }})
+                        setSearchedUsers(users)
+                    } else {
+                        setConnected(false)
+                    }
+                })
+                .catch((error) => {
+                    console.error(error);
+                    setConnected(false)
+                })
+        }
+    }
+
     useEffect(() => {
         getUserInfo();
         getUserChats();
@@ -357,12 +383,45 @@ const Chat = (props) => {
                 </div>
 
                 <div id="bottom-bar">
-                    <button id="addcontact" onClick={addContactButton}><i className="fa fa-user-plus fa-fw"
+                    <button id="addcontact" onClick={()=>{setIsModalOpen(true)}}><i className="fa fa-user-plus fa-fw"
                                                                           aria-hidden="true"></i>
                         <span>Add contact</span></button>
                     <button id="settings"><i className="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span>
                     </button>
-                    {/*<CreateContact isOpen={this.state.isModalOpen} closeModal={this.closeModal}/>*/}
+
+                    <Modal id="add-contact" className="sidepanel-style" isOpen={isModalOpen}>
+                        <div className="modal-dialog" role="document">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <p>Add New Contact</p>
+                                    <span aria-hidden="true" className="close" onClick={() => {
+                                        setIsModalOpen(false)
+                                    }}>&times;</span>
+                                </div>
+                                <div id="search">
+                                    <label htmlFor=""><i className="fa fa-search" aria-hidden="true"></i></label>
+                                    <input id="search-user-input" type="text" placeholder="Search contacts..." onChange={ev => {
+                                        searchUser(ev.target.value)
+                                    }}/>
+                                </div>
+                                <div id="users">
+                                    <ul>
+                                        {searchedUsers.map((user, index) => (
+                                            <li key={index} className='contact' onClick={() => this.addChat(index)}>
+                                                <div className="wrap">
+                                                    <img src={user.profileImage} alt=""/>
+                                                    <div className="meta">
+                                                        <p className="name">{user.firstName + " " + user.lastName}</p>
+                                                        <p className="preview">{user.username}</p>
+                                                    </div>
+                                                </div>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </Modal>
                 </div>
 
             </div>
