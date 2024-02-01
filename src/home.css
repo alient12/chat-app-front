@@ -1,0 +1,11 @@
+
+.mainContainer {
+    background-color: #e1e9ff; 
+    
+    border-radius: 20px; 
+    border: 1px solid black;
+    padding: 80px;
+    /* margin: 1 px; */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
+}
+
