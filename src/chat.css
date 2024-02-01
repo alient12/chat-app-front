@@ -1,8 +1,4 @@
-/*@import url("https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css");*/
-/*@import url("https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300");*/
-/*@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css");*/
-/*@import url("//maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css");*/
-/*@import url("bootstrap/dist/css/bootstrap.css");*/
+@import url("https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css");
 
 body {
     display: flex;
@@ -21,6 +17,8 @@ body {
 
 #frame {
     width: 95%;
+    /*width: 95vh;*/
+    display: flex;
     min-width: 360px;
     max-width: 1000px;
     height: 92vh;
@@ -515,7 +513,8 @@ body {
 }
 @media screen and (min-width: 900px) {
     #frame .content {
-        width: calc(100% - 340px);
+        /*width: calc(100% - 340px);*/
+        width: calc(100%);
     }
 }
 #frame .content .contact-profile {
@@ -550,6 +549,7 @@ body {
     height: auto;
     min-height: calc(100% - 93px);
     max-height: calc(100% - 93px);
+    min-width: calc(100%);
     overflow-y: scroll;
     overflow-x: hidden;
 }
@@ -568,7 +568,7 @@ body {
 #frame .content .messages ul li {
     display: inline-block;
     clear: both;
-    float: left;
+    /*float: left;*/
     margin: 15px 15px 5px 15px;
     width: calc(100% - 25px);
     font-size: 0.9em;
@@ -577,18 +577,20 @@ body {
     margin-bottom: 20px;
 }
 #frame .content .messages ul li.replies img {
+    float: left;
     margin: 6px 8px 0 0;
 }
 #frame .content .messages ul li.replies p {
-    background: #435f7a;
-    color: #f5f5f5;
+    float: left;
+    background: #f5f5f5;
 }
 #frame .content .messages ul li.sent img {
     float: right;
     margin: 6px 0 0 8px;
 }
 #frame .content .messages ul li.sent p {
-    background: #f5f5f5;
+    background: #435f7a;
+    color: #f5f5f5;
     float: right;
 }
 #frame .content .messages ul li img {
@@ -621,7 +623,9 @@ body {
     font-family: "proxima-nova",  "Source Sans Pro", sans-serif;
     float: left;
     border: none;
-    width: calc(100% - 90px);
+    /*width: calc(100% - 90px);*/
+    width: calc(100% - 50px);
+    height: 46px;
     padding: 11px 32px 10px 8px;
     font-size: 0.8em;
     color: #32465a;
@@ -664,7 +668,8 @@ body {
 }
 @media screen and (max-width: 735px) {
     #frame .content .message-input .wrap button {
-        padding: 16px 0;
+        /*padding: 16px 0;*/
+        height: 46px;
     }
 }
 #frame .content .message-input .wrap button:hover {

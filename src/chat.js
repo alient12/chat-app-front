@@ -3,8 +3,6 @@ import {useNavigate} from "react-router-dom";
 import useWebSocket, { ReadyState } from "react-use-websocket"
 import axios from 'axios';
 import "./chat.css"
-import "bootstrap/dist/css/bootstrap.css"
-import "bootstrap/dist/js/bootstrap.js"
 import Typekit from 'react-typekit';
 import Modal from "react-modal";
 try{Typekit.load({async: true});}catch(e){}
@@ -313,48 +311,37 @@ const Chat = (props) => {
 
     return (
         <div id="frame">
-
-            <link rel='stylesheet prefetch'
-                  href='https://cdnjs.cloudflare.com/ajax/libs/meyer-reset/2.0/reset.min.css'/>
-
-            <link href='https://fonts.googleapis.com/css?family=Source+Sans+Pro:400,600,700,300' rel='stylesheet'
-                  type='text/css'/>
-
-            <link rel='stylesheet prefetch'
-                  href='https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.6.2/css/font-awesome.min.css'/>
-
             <div id="sidepanel" className="sidepanel-style">
-
                 <div id="profile">
                     <div className="wrap">
                         <img id="profile-img" src={profileImage} className={status} alt=""/>
-                        <p>{name}</p>
-                        <i className="fa fa-chevron-down expand-button" aria-hidden="true"></i>
-                        <div id="status-options">
-                            <ul>
-                                <li id="status-online" className={status === "online" ? "active" : ""}
-                                    onClick={() => this.statusOnClick("online")}><span className="status-circle"></span>
-                                    <p>Online</p></li>
-                                <li id="status-away" className={status === "away" ? "active" : ""}
-                                    onClick={() => this.statusOnClick("away")}><span className="status-circle"></span>
-                                    <p>Away</p></li>
-                                <li id="status-busy" className={status === "busy" ? "active" : ""}
-                                    onClick={() => this.statusOnClick("busy")}><span className="status-circle"></span>
-                                    <p>Busy</p></li>
-                                <li id="status-offline" className={status === "offline" ? "active" : ""}
-                                    onClick={() => this.statusOnClick("offline")}><span
-                                    className="status-circle"></span> <p>Offline</p></li>
-                            </ul>
-                        </div>
-                        <div id="expanded">
-                            <label htmlFor="twitter"><i className="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
-                            <input name="twitter" type="text"/>
-                            <label htmlFor="twitter"><i className="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
-                            <input name="twitter" type="text"/>
-                            <label htmlFor="twitter"><i className="fa fa-instagram fa-fw"
-                                                        aria-hidden="true"></i></label>
-                            <input name="twitter" type="text"/>
-                        </div>
+                            <p>{name}</p>
+                            <i className="fa fa-chevron-down expand-button" aria-hidden="true"></i>
+                            <div id="status-options">
+                                <ul>
+                                    <li id="status-online" className={status === "online" ? "active" : ""}
+                                        onClick={() => this.statusOnClick("online")}><span className="status-circle"></span>
+                                        <p>Online</p></li>
+                                    <li id="status-away" className={status === "away" ? "active" : ""}
+                                        onClick={() => this.statusOnClick("away")}><span className="status-circle"></span>
+                                        <p>Away</p></li>
+                                    <li id="status-busy" className={status === "busy" ? "active" : ""}
+                                        onClick={() => this.statusOnClick("busy")}><span className="status-circle"></span>
+                                        <p>Busy</p></li>
+                                    <li id="status-offline" className={status === "offline" ? "active" : ""}
+                                        onClick={() => this.statusOnClick("offline")}><span
+                                        className="status-circle"></span> <p>Offline</p></li>
+                                </ul>
+                            </div>
+                            <div id="expanded">
+                                <label htmlFor="twitter"><i className="fa fa-facebook fa-fw" aria-hidden="true"></i></label>
+                                <input name="twitter" type="text"/>
+                                <label htmlFor="twitter"><i className="fa fa-twitter fa-fw" aria-hidden="true"></i></label>
+                                <input name="twitter" type="text"/>
+                                <label htmlFor="twitter"><i className="fa fa-instagram fa-fw"
+                                                            aria-hidden="true"></i></label>
+                                <input name="twitter" type="text"/>
+                            </div>
                     </div>
                 </div>
 
@@ -413,6 +400,7 @@ const Chat = (props) => {
                 </div>
 
             </div>
+
         </div>
     )
 }
