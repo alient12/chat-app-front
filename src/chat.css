@@ -517,7 +517,8 @@ body {
 }
 @media screen and (min-width: 900px) {
     #frame .content {
-        width: calc(100% - 340px);
+        /*width: calc(100% - 340px);*/
+        width: 100%;
     }
 }
 #frame .content .contact-profile {
@@ -617,7 +618,7 @@ body {
     position: absolute;
     bottom: 0;
     width: 100%;
-    z-index: 99;
+    z-index: 0;
 }
 #frame .content .message-input .wrap {
     position: relative;

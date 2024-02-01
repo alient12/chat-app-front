@@ -14,6 +14,9 @@ const Chat = (props) => {
     const token = localStorage.getItem("token")
     const navigate = useNavigate();
     const base_url = "http://localhost:8000/api";
+    if (token === null){
+        navigate("/")
+    }
 
     const [name, setName] = useState("")
     const [profileImage, setProfileImage] = useState("")
@@ -48,8 +51,26 @@ const Chat = (props) => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
     }
 
-    const addContactButton = ()=>{
-
+    const addContactButton = (userID)=>{
+        const url = base_url + "/chats";
+        const headers = {'Content-Type': 'application/json'};
+        const data = {
+            people:[Number(id), Number(userID)],
+            token: token
+        };
+        console.log(data)
+        axios.post(url, data, {headers: headers})
+            .then(r=> {
+                if (r.status === 200) {
+                    setIsModalOpen(false)
+                    getUserChats()
+                } else {
+                }
+            })
+            .catch((error) => {
+                console.error(error);
+                setIsModalOpen(false)
+            })
     }
 
     const getUserInfo = ()=>{
@@ -131,6 +152,8 @@ const Chat = (props) => {
                     console.error(error);
                     setConnected(false)
                 })
+        } else {
+            setMessages([])
         }
     }
 
@@ -185,7 +208,7 @@ const Chat = (props) => {
                             <img src={contact.profileImage} alt=""/>
                             <div className="meta">
                                 <p className="name">{contact.name}</p>
-                                <p className="preview">{contact.lastMessage}</p>
+                                <p className="preview">{contact.lastMessage.length > 30 ? contact.lastMessage.slice(0,30)+"..." : contact.lastMessage }</p>
                             </div>
                         </div>
                     </li>
@@ -222,6 +245,17 @@ const Chat = (props) => {
                     )
                 }
             })
+            setMessagesHtml(html)
+        } else if (messages != null && messages.length === 0){
+            if (chatID !== ""){
+                let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Start chatting with {contactName}!</p></li>]
+                setMessagesHtml(html)
+            } else {
+                let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Start chatting with whoever you want!</p></li>]
+                setMessagesHtml(html)
+            }
+        } else if (messages == null && chatID !== ""){
+            let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Start chatting with {contactName}!</p></li>]
             setMessagesHtml(html)
         }
     }
@@ -274,7 +308,6 @@ const Chat = (props) => {
 
     const searchUser = () => {
         let text = document.getElementById('search-user-input').value
-        console.log(text)
         if (text !== ""){
             const url = base_url + "/users";
             axios.get(url, { params: { keyword: text } })
@@ -407,7 +440,7 @@ const Chat = (props) => {
                                 <div id="users">
                                     <ul>
                                         {searchedUsers.map((user, index) => (
-                                            <li key={index} className='contact' onClick={() => this.addChat(index)}>
+                                            <li key={index} className='contact' onClick={() => addContactButton(user.id)}>
                                                 <div className="wrap">
                                                     <img src={user.profileImage} alt=""/>
                                                     <div className="meta">
