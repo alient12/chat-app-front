@@ -1,5 +1,6 @@
 import React from "react"
 import { useNavigate } from "react-router-dom";
+import "./home.css"
 
 const Home = (props) => {
     const { loggedIn, username } = props
