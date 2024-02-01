@@ -4,6 +4,7 @@ import Home from './home';
 import Login from './login';
 import Register from './register';
 import Chat from './chat';
+import Settings from './settings';
 import './App.css';
 import React, { useEffect, useState } from 'react';
 
@@ -42,6 +43,7 @@ function App() {
             <Route path="/register"
                    element={<Register setLoggedIn={setLoggedIn} setUsername={setUsername} setID={setID}/>}/>
             <Route path="/chat" element={<Chat loggedIn={loggedIn}/>}/>
+            <Route path="/settings" element={<Settings/>}/>
           </Routes>
         </BrowserRouter>
       </div>

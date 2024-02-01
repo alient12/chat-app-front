@@ -251,7 +251,7 @@ const Chat = (props) => {
                 let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Start chatting with {contactName}!</p></li>]
                 setMessagesHtml(html)
             } else {
-                let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Start chatting with whoever you want!</p></li>]
+                let html = [<li className="sent" ref={lastMessageRef}><p style={{width: '100%'}}>Select a chat to start messaging</p></li>]
                 setMessagesHtml(html)
             }
         } else if (messages == null && chatID !== ""){
@@ -419,7 +419,7 @@ const Chat = (props) => {
                     <button id="addcontact" onClick={()=>{setIsModalOpen(true)}}><i className="fa fa-user-plus fa-fw"
                                                                           aria-hidden="true"></i>
                         <span>Add contact</span></button>
-                    <button id="settings"><i className="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span>
+                    <button id="settings" onClick={() => {navigate("/settings")}}><i className="fa fa-cog fa-fw" aria-hidden="true"></i> <span>Settings</span>
                     </button>
 
                     <Modal id="add-contact" className="sidepanel-style" isOpen={isModalOpen}>
