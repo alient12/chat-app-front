@@ -46,6 +46,7 @@ const Chat = (props) => {
     const [isModalOpen, setIsModalOpen] = useState(false)
     const [searchedUsers, setSearchedUsers] = useState([])
     const lastMessageRef = useRef(null);
+    const [refreshCount, setRefreshCount] = useState(0)
 
     const scrollToBottom = () => {
         lastMessageRef.current?.scrollIntoView({ behavior: "smooth" })
@@ -177,6 +178,9 @@ const Chat = (props) => {
                                 contact.chatID = chat_id
                                 contact.id = contact_id
                                 contact.lastMessageTime = lastMessage.time
+                                getOtherUserStatus(contact_id).then(contactStatus=>{
+                                    contact.status = contactStatus
+                                })
                                 return contact
                             })
                         })
@@ -187,7 +191,27 @@ const Chat = (props) => {
                     })
                 }
                 else{
-                    window.alert("cannot connect to server")
+                    setConnected(false)
+                }
+            })
+            .catch((error) => {
+                console.error(error)
+                setConnected(false)
+            })
+    }
+
+    const getOtherUserStatus = (id) => {
+        let url = base_url + "/status";
+        return axios.get(url, { params: { token: token, id: id } })
+            .then(r => {
+                if (r.status === 200){
+                    if (r.data){
+                        return "online"
+                    }else{
+                        return ""
+                    }
+                }
+                else{
                 }
             })
             .catch((error) => {
@@ -331,13 +355,13 @@ const Chat = (props) => {
 
     useEffect(() => {
         getUserInfo();
-        getUserChats();
         getMessages();
+        getUserChats();
     }, []);
 
     useEffect(() =>{
         renderContacts();
-    }, [contacts, activeContactIndex])
+    }, [contacts, activeContactIndex, refreshCount])
 
     useEffect(() => {
         getMessages();
@@ -348,10 +372,6 @@ const Chat = (props) => {
         setTimeout(scrollToBottom, 0)
     }, [messages])
 
-    // Run when the connection state (readyState) changes
-    useEffect(() => {
-        // if (readyState === ReadyState.OPEN) {
-    }, [readyState])
 
     // Run when a new WebSocket message is received (lastJsonMessage)
     useEffect(() => {
@@ -366,6 +386,11 @@ const Chat = (props) => {
             updateContactsList(lastJsonMessage.chatid, lastJsonMessage)
         }
     }, [lastJsonMessage])
+
+    useEffect(() => {
+        const intervalID = setInterval(() => {setRefreshCount(refreshCount + 1)}, 1000)
+        return () => {clearInterval(intervalID)}
+    }, []);
 
 
     return (

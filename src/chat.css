@@ -105,7 +105,8 @@ body {
 }
 @media screen and (max-width: 735px) {
     .sidepanel-style #profile .wrap img {
-        width: 40px;
+        width: 45px;
+        height: 45px;
         margin-left: 4px;
     }
 }
