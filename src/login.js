@@ -11,20 +11,6 @@ const Login = (props) => {
     
     const navigate = useNavigate();
 
-    // Call the server API to check if the given email ID already exists
-    // const checkAccountExists = (callback) => {
-    //     fetch("http://localhost:3080/check-account", {
-    //         method: "POST",
-    //         headers: {
-    //             'Content-Type': 'application/json'
-    //         },
-    //         body: JSON.stringify({email})
-    //     })
-    //     .then(r => r.json())
-    //     .then(r => {
-    //         callback(r?.userExists)
-    //     })
-    // }
 
     // Log in a user using email and password
     const base_url = "http://localhost:8000/api";
@@ -114,6 +100,7 @@ const Login = (props) => {
         <br />
         <div className={"inputContainer"}>
             <input
+                type="password"
                 value={password}
                 placeholder="Enter your password here"
                 onChange={ev => setPassword(ev.target.value)}

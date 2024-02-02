@@ -26,6 +26,7 @@ const Chat = (props) => {
     const [contactProfileImage, setContactProfileImage] = useState("")
     const [contactName, setContactName] = useState("")
     const [contactID, setContactID] = useState("")
+    const [contactStatus, setContactStatus] = useState("")
     const [chatID, setChatID] = useState("")
     const [contacts, setContacts] = useState([])
     const [messages, setMessages] = useState([])
@@ -123,10 +124,7 @@ const Chat = (props) => {
                     if (messages == null){
                         return ""
                     } else{
-                        return {
-                            content: messages[messages.length - 1].content,
-                            time: messages[messages.length - 1].createdat,
-                        }
+                        return messages[messages.length - 1]
                     }
                 } else {
                     setConnected(false)
@@ -177,7 +175,7 @@ const Chat = (props) => {
                                 contact.lastMessage = lastMessage.content
                                 contact.chatID = chat_id
                                 contact.id = contact_id
-                                contact.lastMessageTime = lastMessage.time
+                                contact.lastMessageTime = lastMessage.createdat
                                 getOtherUserStatus(contact_id).then(contactStatus=>{
                                     contact.status = contactStatus
                                 })
@@ -186,6 +184,18 @@ const Chat = (props) => {
                         })
                     })
                     return Promise.all(promises).then(contacts => {
+                        contacts.sort((a, b) => {
+                            let dateA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+                            let dateB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+
+                            if (dateA < dateB) {
+                                return 1;
+                            }
+                            if (dateA > dateB) {
+                                return -1;
+                            }
+                            return 0;
+                        });
                         setContacts(contacts)
                         return contacts
                     })
@@ -226,13 +236,13 @@ const Chat = (props) => {
                 let key = `contact-${contact.name}`
                 html.push(
                     <li key={key} className={key === activeContactIndex? 'contact active' : 'contact'}
-                        onClick={()=>{contactIndexHandler(key, contact.chatID, contact.name, contact.profileImage, contact.id)}}>
+                        onClick={()=>{contactIndexHandler(key, contact.chatID, contact.name, contact.profileImage, contact.id, contact.status)}}>
                         <div className="wrap">
                             <span className={"contact-status " + contact.status}></span>
                             <img src={contact.profileImage} alt=""/>
                             <div className="meta">
                                 <p className="name">{contact.name}</p>
-                                <p className="preview">{contact.lastMessage.length > 30 ? contact.lastMessage.slice(0,30)+"..." : contact.lastMessage }</p>
+                                <p className="preview">{ contact.lastMessage!= null && contact.lastMessage.length > 30 ? contact.lastMessage.slice(0,30)+"..." : contact.lastMessage}</p>
                             </div>
                         </div>
                     </li>
@@ -284,12 +294,13 @@ const Chat = (props) => {
         }
     }
 
-    const contactIndexHandler = (key, chatID, name, image, id) => {
+    const contactIndexHandler = (key, chatID, name, image, id, status) => {
         setActiveContactIndex(key)
         setChatID(chatID)
         setContactName(name)
         setContactProfileImage(image)
         setContactID(id)
+        setContactStatus(status)
     }
 
     const sendMessage = () => {
@@ -308,22 +319,22 @@ const Chat = (props) => {
     }
 
     const updateContactsList = (chatID, message) => {
-        const newContacts = [...contacts]
+        let newContacts = [...contacts]
         newContacts.forEach((contact, i) => {
             if (contact.chatID === chatID){
                 newContacts[i].lastMessage = message.content
-                newContacts[i].time = message.createdat
+                newContacts[i].lastMessageTime = message.createdat
             }
         })
         newContacts.sort((a, b) => {
-            let dateA = new Date(a.time);
-            let dateB = new Date(b.time);
+            let dateA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+            let dateB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
 
             if (dateA < dateB) {
-                return -1;
+                return 1;
             }
             if (dateA > dateB) {
-                return 1;
+                return -1;
             }
             return 0;
         });
@@ -487,7 +498,7 @@ const Chat = (props) => {
             <div className="content">
 
                 <div className="contact-profile">
-                    <img src={contactProfileImage} alt=""/>
+                    <img src={contactProfileImage} alt="" className={contactStatus}/>
                     <p>{contactName}</p>
                     <div className="social-media">
                         <i className="fa fa-camera" aria-hidden="true"></i>

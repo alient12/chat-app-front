@@ -534,6 +534,19 @@ body {
     float: left;
     margin: 9px 12px 0 9px;
 }
+
+#frame .content .contact-profile img.online {
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(46, 204, 113);
+}
+
+#frame .content .contact-profile img.offline {
+    border-width: 2px;
+    border-style: solid;
+    border-color: rgb(99, 101, 99);
+}
+
 #frame .content .contact-profile p {
     float: left;
 }
